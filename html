@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Data</title>
+</head>
+<body>
+    <h1>Device Motion & Orientation Data</h1>
+    <div id="sensorData">
+        <p><strong>Gyroscope:</strong> <span id="gyroData">Waiting for data...</span></p>
+        <p><strong>Accelerometer:</strong> <span id="accData">Waiting for data...</span></p>
+        <p><strong>Quaternion:</strong> <span id="quatData">Waiting for data...</span></p>
+    </div>
+
+    <script>
+        // 检查设备是否支持DeviceOrientation和DeviceMotion
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', function(event) {
+                const alpha = event.alpha;
+                const beta = event.beta;
+                const gamma = event.gamma;
+                document.getElementById('gyroData').innerText = `Alpha: ${alpha}, Beta: ${beta}, Gamma: ${gamma}`;
+            }, true);
+        }
+
+        if (window.DeviceMotionEvent) {
+            window.addEventListener('devicemotion', function(event) {
+                // 获取加速度数据
+                const accX = event.acceleration.x;
+                const accY = event.acceleration.y;
+                const accZ = event.acceleration.z;
+                document.getElementById('accData').innerText = `X: ${accX}, Y: ${accY}, Z: ${accZ}`;
+
+                // 获取旋转速率 (陀螺仪)
+                const gyroX = event.rotationRate.alpha;
+                const gyroY = event.rotationRate.beta;
+                const gyroZ = event.rotationRate.gamma;
+                document.getElementById('gyroData').innerText = `Alpha: ${gyroX}, Beta: ${gyroY}, Gamma: ${gyroZ}`;
+            }, true);
+        }
+
+        // 四元数计算 (如果需要)
+        function computeQuaternion(alpha, beta, gamma) {
+            // 简化的四元数计算 (示例)
+            const c1 = Math.cos(alpha / 2);
+            const c2 = Math.cos(beta / 2);
+            const c3 = Math.cos(gamma / 2);
+            const s1 = Math.sin(alpha / 2);
+            const s2 = Math.sin(beta / 2);
+            const s3 = Math.sin(gamma / 2);
+
+            const qw = c1 * c2 * c3 + s1 * s2 * s3;
+            const qx = s1 * c2 * c3 - c1 * s2 * s3;
+            const qy = c1 * s2 * c3 + s1 * c2 * s3;
+            const qz = c1 * c2 * s3 - s1 * s2 * c3;
+
+            return { qw, qx, qy, qz };
+        }
+
+        window.addEventListener('deviceorientation', function(event) {
+            const quaternion = computeQuaternion(event.alpha, event.beta, event.gamma);
+            document.getElementById('quatData').innerText = `QW: ${quaternion.qw}, QX: ${quaternion.qx}, QY: ${quaternion.qy}, QZ: ${quaternion.qz}`;
+        }, true);
+    </script>
+</body>
+</html>
